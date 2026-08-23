@@ -1,0 +1,89 @@
+---
+/**
+ * Splits text into per-character spans AT BUILD TIME.
+ *
+ * Doing this on the client (the usual GSAP SplitText approach) means the
+ * headline reflows after hydration, which is both a CLS hit and a flash of
+ * unsplit text. Here the split HTML is what ships, so there is nothing to do
+ * on load at all.
+ *
+ * Accessibility: the split spans are hidden from assistive tech and the real
+ * sentence is carried by the parent's aria-label, so a screen reader reads
+ * "Websites that survive a second look." rather than spelling it out.
+ * Crawlers still see the text in the DOM.
+ */
+interface Props {
+  text: string;
+  /** Continuous index across multiple lines, for staggering. */
+  start?: number;
+  class?: string;
+  /**
+   * Marks the final character with the accent colour. Set explicitly rather
+   * than selected for: a child component's root does not inherit the parent's
+   * style scope, so a `:global(... :last-child)` rule from the caller would
+   * silently never match.
+   */
+  accentLast?: boolean;
+}
+
+const { text, start = 0, class: className, accentLast = false } = Astro.props;
+
+// Words stay intact as inline-block units so wrapping still works normally.
+const words = text.split(' ');
+let i = start;
+const total = text.replace(/ /g, '').length;
+const built = words.map((word) => ({
+  chars: Array.from(word).map((ch) => ({ ch, i: i++ })),
+}));
+const lastIndex = start + total - 1;
+---
+
+<span class:list={['split', className]} aria-hidden="true">
+  {
+    built.map((word, wi) => (
+      <span class="split__word">
+        {word.chars.map(({ ch, i }) => (
+          <span
+            class:list={['split__char', accentLast && i === lastIndex && 'split__char--accent']}
+            data-char
+            style={`--i:${i}`}
+          >
+            {ch}
+          </span>
+        ))}
+        {wi < built.length - 1 && <span class="split__gap"> </span>}
+      </span>
+    ))
+  }
+</span>
+
+<style>
+  .split {
+    display: block;
+  }
+
+  /* Words keep normal wrapping behaviour; characters become their own boxes so
+     each one can be transformed independently. */
+  .split__word {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .split__char {
+    display: inline-block;
+    /* transform-origin at the baseline centre means magnified characters grow
+       away from the line rather than drifting off it. */
+    transform-origin: 50% 60%;
+    backface-visibility: hidden;
+  }
+
+  .split__gap {
+    display: inline-block;
+    white-space: pre;
+  }
+
+  /* The only red in the headline: the full stop. */
+  .split__char--accent {
+    color: var(--accent);
+  }
+</style>

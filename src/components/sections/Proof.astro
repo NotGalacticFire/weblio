@@ -1,0 +1,92 @@
+---
+import { proof } from '../../data/site';
+---
+
+<section class="proof" aria-labelledby="proof-heading">
+  <div class="page proof__inner">
+    <header class="proof__folio" data-reveal>
+      <p class="label">{proof.label}</p>
+      <span class="label tnum" aria-label="Folio interlude">{proof.folio}</span>
+    </header>
+    <hr class="rule" data-rule />
+
+    <div class="proof__lead">
+      <h2 class="display proof__heading" id="proof-heading" data-reveal>
+        {proof.heading.map((line) => <span>{line}</span>)}
+      </h2>
+      <p class="lede proof__body" data-reveal>{proof.body}</p>
+    </div>
+
+    <dl class="proof__list" data-reveal>
+      {proof.points.map((point) => (
+        <div class="proof__row">
+          <dt class="label">{point.k}</dt>
+          <dd>{point.v}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+<style>
+  .proof {
+    position: relative;
+    z-index: var(--z-content);
+    background: var(--paper-sunk);
+    padding-block: var(--sp-section);
+  }
+
+  .proof__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .proof__lead {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: end;
+    padding-block: var(--sp-8);
+  }
+
+  .proof__heading {
+    grid-column: 1 / span 8;
+    font-size: var(--display-md);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .proof__heading span { display: block; }
+  .proof__body { grid-column: 9 / -1; }
+
+  .proof__list { border-bottom: 1px solid var(--rule-strong); }
+
+  .proof__row {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: baseline;
+    padding-block: var(--sp-5);
+    border-top: 1px solid var(--rule-strong);
+  }
+
+  .proof__row dt { grid-column: 1 / span 3; color: var(--accent-ink); }
+  .proof__row dd { grid-column: 4 / span 8; font-size: var(--step-1); }
+
+  @media (max-width: 56rem) {
+    .proof__heading { grid-column: 1 / span 10; }
+    .proof__body { grid-column: 6 / -1; margin-top: var(--sp-5); }
+    .proof__row dd { grid-column: 4 / -1; }
+  }
+
+  @media (max-width: 48rem) {
+    .proof__lead,
+    .proof__row { grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+    .proof__heading,
+    .proof__body { grid-column: 1 / -1; }
+    .proof__row dt { grid-column: 1 / -1; }
+    .proof__row dd { grid-column: 1 / -1; }
+  }
+</style>

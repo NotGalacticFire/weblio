@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { contact, site } from '../data/site';
+---
+
+<Base title={`${contact.cta.label} — ${site.name}`} description={contact.lede} path="/contact">
+  <section class="contact-page" aria-labelledby="contact-heading">
+    <div class="page contact-page__inner">
+      <header class="contact-page__folio" data-reveal>
+        <p class="label">{contact.label}</p>
+        <span class="label tnum" aria-label={`Folio ${contact.folio}`}>{contact.folio}</span>
+      </header>
+      <hr class="rule" data-rule />
+
+      <div class="contact-page__lead">
+        <h1 class="display contact-page__heading" id="contact-heading" data-reveal>
+          {contact.heading.map((line) => <span>{line}</span>)}
+        </h1>
+        <p class="lede contact-page__lede" data-reveal>{contact.lede}</p>
+      </div>
+
+      <ContactForm />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact-page {
+    position: relative;
+    z-index: var(--z-content);
+    min-height: 100svh;
+    background: var(--paper);
+    padding-block: calc(var(--nav-h, 4.5rem) + var(--sp-8)) var(--sp-section);
+  }
+
+  .contact-page__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .contact-page__lead {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: end;
+    padding-block: var(--sp-8);
+  }
+
+  .contact-page__heading {
+    grid-column: 1 / span 8;
+    font-size: var(--display-md);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .contact-page__heading span { display: block; }
+  .contact-page__heading span:last-child { color: var(--accent); }
+  .contact-page__lede { grid-column: 9 / -1; }
+
+  @media (max-width: 56rem) {
+    .contact-page__heading { grid-column: 1 / span 9; }
+    .contact-page__lede { grid-column: 7 / -1; margin-top: var(--sp-5); }
+  }
+
+  @media (max-width: 48rem) {
+    .contact-page__lead { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    .contact-page__heading,
+    .contact-page__lede { grid-column: 1 / -1; }
+  }
+</style>

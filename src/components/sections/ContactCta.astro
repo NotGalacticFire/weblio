@@ -1,0 +1,79 @@
+---
+import { contact } from '../../data/site';
+---
+
+<section class="contact-cta" aria-labelledby="contact-cta-heading">
+  <div class="page contact-cta__inner">
+    <header class="contact-cta__folio" data-reveal>
+      <p class="label">{contact.label}</p>
+      <span class="label tnum" aria-label={`Folio ${contact.folio}`}>{contact.folio}</span>
+    </header>
+    <hr class="rule" data-rule />
+
+    <div class="contact-cta__grid">
+      <h2 class="display contact-cta__heading" id="contact-cta-heading" data-reveal>
+        {contact.heading.map((line) => <span>{line}</span>)}
+      </h2>
+      <div class="contact-cta__aside" data-reveal>
+        <p class="lede">{contact.lede}</p>
+        <a class="btn btn--solid" href={contact.cta.href} data-magnetic>
+          <span>{contact.cta.label}</span>
+          <span class="btn__arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-cta {
+    position: relative;
+    z-index: var(--z-content);
+    background: var(--paper-sunk);
+    padding-block: var(--sp-section);
+  }
+
+  .contact-cta__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .contact-cta__grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: end;
+    padding-top: var(--sp-8);
+  }
+
+  .contact-cta__heading {
+    grid-column: 1 / span 8;
+    font-size: var(--display-md);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .contact-cta__heading span { display: block; }
+  .contact-cta__heading span:last-child { color: var(--accent); }
+
+  .contact-cta__aside {
+    grid-column: 9 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-6);
+  }
+
+  @media (max-width: 56rem) {
+    .contact-cta__heading { grid-column: 1 / span 9; }
+    .contact-cta__aside { grid-column: 7 / -1; margin-top: var(--sp-6); }
+  }
+
+  @media (max-width: 48rem) {
+    .contact-cta__grid { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    .contact-cta__heading,
+    .contact-cta__aside { grid-column: 1 / -1; }
+  }
+</style>

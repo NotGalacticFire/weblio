@@ -1,0 +1,614 @@
+---
+import { difference as d } from '../../data/site';
+
+const biz = d.business;
+---
+
+<section class="difference" id="difference" data-surface="ink" aria-labelledby="difference-heading">
+  <div class="page difference__inner">
+    <header class="difference__folio" data-reveal>
+      <p class="label">{d.label}</p>
+      <span class="label tnum" aria-label={`Folio ${d.folio}`}>{d.folio}</span>
+    </header>
+    <hr class="rule" data-rule />
+
+    <div class="difference__intro">
+      <h2 class="display difference__heading" id="difference-heading" data-reveal>{d.heading}</h2>
+      <p class="lede difference__lede" data-reveal>
+        {d.lede}
+        <span class="difference__hint">{d.hint}</span>
+      </p>
+    </div>
+
+    <div class="compare" data-compare data-reveal style="--split: 50%;">
+      <div class="compare__tags" aria-hidden="true">
+        <span class="label compare__tag">{d.before.tag}</span>
+        <span class="label compare__tag compare__tag--after">{d.after.tag}</span>
+      </div>
+
+      <div class="compare__stage">
+        {/*
+          Side by side, not a wipe. A wipe only reads when the two sides are
+          aligned images of the same thing; these are two different layouts, so
+          wiping always buries the content of whichever side is underneath.
+          Splitting instead keeps both pages complete at every handle position —
+          and because each panel re-lays out to whatever width it is given,
+          dragging also demonstrates the responsive behaviour being sold.
+
+          Each panel declares its own colours explicitly. They must NOT inherit
+          this section's ink surface, or both "websites" come out dark and the
+          comparison says nothing.
+        */}
+
+        <p class="label compare__stackTag" aria-hidden="true">{d.before.tag}</p>
+
+        <!-- The site most small businesses actually have -->
+        <article class="site site--typical" aria-label={`${d.before.tag} treatment`}>
+          <div class="typ__bar">
+            <span class="typ__logo">{biz.name}</span>
+            <ul class="typ__nav" role="list">
+              {d.before.nav.map((n) => <li>{n}</li>)}
+            </ul>
+          </div>
+          <div class="typ__body">
+            <p class="typ__tagline">{biz.trade} — {biz.town}</p>
+            <h3 class="typ__hero">{d.before.hero}</h3>
+            <div class="typ__photo" aria-hidden="true"><span>Our Work</span></div>
+            <p class="typ__blurb">{d.before.blurb}</p>
+            <p class="typ__ctaWrap"><span class="typ__cta">{d.before.cta}</span></p>
+            <div class="typ__cols">
+              {
+                d.before.columns.map((c) => (
+                  <div class="typ__col">
+                    <h4>{c.title}</h4>
+                    <p>{c.body}</p>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <p class="typ__footer">{d.before.footer}</p>
+        </article>
+
+        <p class="label compare__stackTag compare__stackTag--after" aria-hidden="true">{d.after.tag}</p>
+
+        <!-- The same business, done properly -->
+        <article class="site site--weblio" aria-label={`${d.after.tag} treatment`}>
+          <div class="web__bar">
+            <span class="web__logo">{biz.name}</span>
+            <ul class="web__nav" role="list">
+              {d.after.nav.map((n) => <li>{n}</li>)}
+            </ul>
+          </div>
+          <div class="web__body">
+            <p class="web__eyebrow">{biz.trade}</p>
+            <h3 class="web__hero">{d.after.hero}</h3>
+            <p class="web__blurb">{d.after.blurb}</p>
+            <p class="web__ctaWrap"><span class="web__cta">{d.after.cta} <i aria-hidden="true">→</i></span></p>
+            <dl class="web__facts">
+              {
+                d.after.facts.map((f) => (
+                  <div class="web__fact">
+                    <dt>{f.k}</dt>
+                    <dd>{f.v}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+          <p class="web__footer">{biz.phone}</p>
+        </article>
+
+        <div class="compare__seam" aria-hidden="true">
+          <span class="compare__grip"><i>←</i><i>→</i></span>
+        </div>
+
+        <label class="sr-only" for="treatment-compare">
+          Reveal more of the {d.before.tag} or {d.after.tag} treatment
+        </label>
+        <input
+          class="compare__range"
+          id="treatment-compare"
+          type="range"
+          min="26"
+          max="74"
+          value="50"
+          step="1"
+          aria-describedby="difference-disclaimer"
+        />
+      </div>
+    </div>
+
+    <p class="difference__disclaimer" id="difference-disclaimer" data-reveal>{d.disclaimer}</p>
+  </div>
+</section>
+
+<style>
+  .difference {
+    position: relative;
+    z-index: var(--z-content);
+    background: var(--paper);
+    color: var(--ink);
+    padding-block: var(--sp-section);
+  }
+
+  .difference__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .difference__intro {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: end;
+    padding-block: var(--sp-8) var(--sp-7);
+  }
+
+  .difference__heading {
+    grid-column: 1 / span 6;
+    font-size: var(--display-md);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+  .difference__lede { grid-column: 8 / -1; }
+
+  .difference__hint {
+    display: block;
+    margin-top: var(--sp-3);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  /* No handle once the panels stack, so the instruction would be a lie. */
+  @media (max-width: 48rem) {
+    .difference__hint { display: none; }
+  }
+
+  .difference__disclaimer {
+    margin-top: var(--sp-4);
+    max-width: 62ch;
+    font-size: var(--step--1);
+    color: var(--ink-60);
+  }
+
+  /* --- the comparison ----------------------------------------------------- */
+  .compare__tags {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: var(--sp-3);
+  }
+  .compare__tag { color: var(--ink-60); }
+  .compare__tag--after { color: var(--accent); }
+
+  /* Only used once the panels stack; the row above the stage covers desktop. */
+  .compare__stackTag { display: none; }
+
+  .compare__stage {
+    position: relative;
+    /* Tall enough that both miniature pages read as pages. */
+    height: clamp(30rem, 46vw, 40rem);
+    display: grid;
+    grid-template-columns: var(--split) 1fr;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid var(--rule-strong);
+    /* Two lit screens in a dark room. */
+    box-shadow: 0 2px 60px -20px rgb(0 0 0 / 0.6);
+  }
+
+  .site {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    /* Grid children refuse to shrink below their content without this, which
+       would push the second panel off the stage at narrow splits. */
+    min-width: 0;
+    /* Each panel is its own colour space — never inherits the ink surface. */
+    color-scheme: light;
+  }
+
+  /* ======================================================================
+     TYPICAL — a 2012 template. Every choice here is a real one that dated
+     small-business sites actually make: a centred column, six navigation
+     items, Times headings, a blue gradient button, a stock photo well, and
+     three columns of undifferentiated text.
+     ==================================================================== */
+  .site--typical {
+    background: #ffffff;
+    color: #333333;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .typ__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 10px 14px;
+    background: linear-gradient(#f8f8f8, #dedede);
+    border-bottom: 1px solid #bbb;
+  }
+  .typ__logo {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: #1a3d6d;
+  }
+  .typ__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 11px;
+  }
+  .typ__nav li {
+    color: #0645ad;
+    text-decoration: underline;
+  }
+
+  .typ__body {
+    flex: 1;
+    /* The centred, narrow, everything-stacked column. */
+    width: min(100%, 34rem);
+    margin-inline: auto;
+    padding: 16px 14px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .typ__tagline {
+    font-size: 11px;
+    font-style: italic;
+    color: #777;
+  }
+
+  .typ__hero {
+    margin-top: 8px;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a3d6d;
+    text-shadow: 1px 1px 0 #ffffff, 2px 2px 2px rgb(0 0 0 / 0.25);
+  }
+
+  .typ__photo {
+    display: grid;
+    place-items: center;
+    height: 92px;
+    margin: 12px 0;
+    border: 1px solid #c4c4c4;
+    background:
+      repeating-linear-gradient(45deg, #ededed 0 8px, #e3e3e3 8px 16px);
+    color: #9a9a9a;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .typ__blurb {
+    margin-bottom: 12px;
+    text-align: justify;
+    color: #444;
+  }
+
+  .typ__ctaWrap { margin-bottom: 14px; }
+  .typ__cta {
+    display: inline-block;
+    padding: 7px 16px;
+    border: 1px solid #2a5f9e;
+    border-radius: 6px;
+    background: linear-gradient(#5b9bd5, #2a6bb0);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    text-shadow: 0 -1px 0 rgb(0 0 0 / 0.35);
+  }
+
+  .typ__cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    text-align: left;
+    border-top: 1px dotted #bbb;
+    padding-top: 12px;
+  }
+  .typ__col h4 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a3d6d;
+    margin-bottom: 3px;
+  }
+  .typ__col p { font-size: 11px; color: #555; }
+
+  .typ__footer {
+    padding: 8px 14px;
+    border-top: 1px solid #ccc;
+    background: #f2f2f2;
+    color: #888;
+    font-size: 10px;
+    text-align: center;
+  }
+
+  /* ======================================================================
+     WEBLIO — the same business, on the same sheet of paper as this site.
+     ==================================================================== */
+  .site--weblio {
+    background: #f2efe9;
+    color: #14110e;
+    font-family: var(--font-sans);
+  }
+
+  .web__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 14px 20px;
+    border-bottom: 1px solid #14110e1f;
+  }
+  .web__logo {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-variation-settings: 'opsz' 40, 'wght' 500, 'SOFT' 0, 'WONK' 0;
+    letter-spacing: -0.01em;
+  }
+  .web__nav {
+    display: flex;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #14110e99;
+  }
+
+  .web__body {
+    flex: 1;
+    padding: clamp(18px, 3.2vw, 40px) 20px;
+    /* Left-aligned, generous, one idea at a time. */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    overflow: hidden;
+  }
+
+  .web__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #b8300f;
+  }
+
+  .web__hero {
+    margin-top: 14px;
+    max-width: 15ch;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 4.4vw, 52px);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+  }
+
+  .web__blurb {
+    margin-top: 16px;
+    max-width: 38ch;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #14110ee6;
+  }
+
+  .web__ctaWrap { margin-top: 22px; }
+  .web__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 10px 16px;
+    background: #14110e;
+    color: #f2efe9;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .web__facts {
+    display: flex;
+    gap: 28px;
+    margin: auto 0 0;
+    padding-top: 18px;
+    border-top: 1px solid #14110e1f;
+    width: 100%;
+  }
+  .web__fact dt {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #14110e99;
+  }
+  .web__fact dd {
+    margin: 5px 0 0;
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-variation-settings: 'opsz' 40, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .web__footer {
+    padding: 12px 20px;
+    border-top: 1px solid #14110e1f;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: #14110e99;
+  }
+
+  /* --- the seam ----------------------------------------------------------- */
+  .compare__seam {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    bottom: 0;
+    left: var(--split);
+    width: 1px;
+    background: var(--accent);
+    pointer-events: none;
+  }
+  .compare__seam::before {
+    /* Widen the visual seam without widening the hit area. */
+    content: '';
+    position: absolute;
+    inset: 0 -1px;
+    background: var(--accent);
+    opacity: 0.35;
+  }
+  .compare__grip {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 54px;
+    height: 30px;
+    transform: translate(-50%, -50%);
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-style: normal;
+  }
+  .compare__grip i { font-style: normal; }
+
+  /* The real control. A range input rather than a custom drag handler, so it
+     is keyboard operable, announced correctly, and works with assistive tech
+     for free. It sits transparently over the whole stage. */
+  .compare__range {
+    appearance: none;
+    -webkit-appearance: none;
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: transparent;
+    cursor: ew-resize;
+  }
+  .compare__range:focus-visible {
+    outline: var(--focus-ring) solid var(--accent);
+    outline-offset: 3px;
+  }
+  .compare__range::-webkit-slider-runnable-track { height: 100%; background: transparent; }
+  .compare__range::-moz-range-track { height: 100%; background: transparent; }
+  .compare__range::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 54px;
+    height: 100%;
+    border: 0;
+    background: transparent;
+  }
+  .compare__range::-moz-range-thumb {
+    width: 54px;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  /* --- responsive --------------------------------------------------------- */
+  @media (max-width: 56rem) {
+    .difference__heading { grid-column: 1 / span 8; }
+    .difference__lede { grid-column: 1 / span 9; margin-top: var(--sp-5); }
+  }
+
+  @media (max-width: 48rem) {
+    .difference__intro { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    .difference__heading,
+    .difference__lede { grid-column: 1 / -1; }
+
+    /* Dragging a vertical divider inside a 390px viewport is a bad
+       interaction, and half of 390px cannot hold a legible page. Stack the two
+       treatments instead and show each one complete — a simpler mobile
+       experience beats a cramped copy of the desktop one. */
+    .compare__stage {
+      display: block;
+      height: auto;
+      box-shadow: none;
+    }
+    /* Let each treatment size to its own content. Pinning a height here clips
+       the very details the comparison exists to show — the 2012 button on one
+       side and the fact row on the other. */
+    .site { height: auto; }
+    .compare__seam,
+    .compare__range,
+    .compare__tags { display: none; }
+
+    .compare__stackTag {
+      display: block;
+      padding-bottom: var(--sp-3);
+      color: var(--ink-60);
+    }
+    .compare__stackTag--after {
+      padding-top: var(--sp-6);
+      color: var(--accent);
+    }
+
+    .compare__stage { border: 0; }
+    .site { border: 1px solid var(--rule-strong); }
+
+    /* Three columns of near-identical filler is the point on desktop; at this
+       width it is just noise, and the button matters more. */
+    .typ__cols { display: none; }
+    .typ__nav li:nth-child(n + 4) { display: none; }
+    .typ__photo { height: 58px; }
+    .web__body { padding: 16px; }
+    .web__facts { gap: 18px; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-compare]').forEach((compare) => {
+    const range = compare.querySelector<HTMLInputElement>('input[type="range"]');
+    if (!range) return;
+
+    /* The input's own min/max ARE the clamp (26-74), rather than mapping
+       0-100 onto that range in script. Below about a quarter of the stage
+       neither miniature page lays out legibly.
+       Mapping was the first approach and it broke the announcement: one arrow
+       press moved the split by 0.48%, which rounds to the same number, so
+       screen reader users heard "50%, 50%" twice in a row and had no feedback
+       that anything had happened. Here one press is one percent. */
+    const update = () => {
+      const split = Number(range.value);
+      compare.style.setProperty('--split', `${split}%`);
+      // Describe the split in terms a screen reader user can act on, rather
+      // than reading out a bare percentage.
+      range.setAttribute(
+        'aria-valuetext',
+        `${split}% of the width given to the typical treatment, ` +
+          `${100 - split}% to the Weblio treatment`
+      );
+    };
+
+    range.addEventListener('input', update);
+    update();
+  });
+</script>

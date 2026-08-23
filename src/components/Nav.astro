@@ -1,0 +1,340 @@
+---
+import { nav, hero } from '../data/site';
+---
+
+<header class="nav" data-nav>
+  <div class="nav__bar page">
+    <a class="nav__mark" href="/" aria-label="Weblio — home">
+      <span class="nav__markText">Weblio</span>
+      <span class="nav__markGlyph" aria-hidden="true">◉</span>
+    </a>
+
+    {/* Running head: where you are in the folio, the way a book tells you. */}
+    <p class="nav__folio" data-folio-out hidden aria-hidden="true">
+      <span class="nav__folioNum tnum" data-folio-num></span>
+      <span class="nav__folioRule"></span>
+      <span class="nav__folioName" data-folio-name></span>
+    </p>
+
+    <nav class="nav__links" aria-label="Sections">
+      <ul role="list">
+        {
+          nav.map((item) => (
+            <li>
+              <a class="nav__link" href={item.href}>
+                <span class="nav__linkText">{item.label}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="nav__cta" href={hero.cta.href} data-magnetic>
+      <span>{hero.cta.label}</span>
+      <span class="nav__ctaArrow" aria-hidden="true">→</span>
+    </a>
+
+    <button
+      class="nav__toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="nav-sheet"
+      data-nav-toggle
+    >
+      <span class="sr-only">Menu</span>
+      <span class="nav__toggleBars" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </div>
+
+  <div class="nav__rule" aria-hidden="true"></div>
+
+  <!-- Mobile sheet -->
+  <div class="nav__sheet" id="nav-sheet" data-nav-sheet hidden>
+    <ul role="list">
+      {
+        nav.map((item, i) => (
+          <li style={`--i:${i}`}>
+            <a href={item.href} data-nav-sheet-link>{item.label}</a>
+          </li>
+        ))
+      }
+      <li style={`--i:${nav.length}`}>
+        <a href={hero.cta.href} data-nav-sheet-link>{hero.cta.label}</a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-nav);
+  }
+
+  .nav__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-6);
+    height: var(--nav-h, 4.5rem);
+    /* The bar reads as printed on the sheet, not floating above it. */
+    background: color-mix(in srgb, var(--paper) 82%, transparent);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  }
+
+  /* Safari on iOS renders backdrop-filter on a fixed element expensively.
+     Below the breakpoint the bar is short, so a flat fill is cheaper and
+     looks identical against the paper. */
+  @media (max-width: 48rem) {
+    .nav__bar {
+      background: var(--paper);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+
+  .nav__rule {
+    height: 1px;
+    background: var(--rule);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+  .nav[data-scrolled] .nav__rule { transform: scaleX(1); }
+
+  /* --- wordmark ---------------------------------------------------------- */
+  .nav__mark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4ch;
+    margin-right: var(--sp-6);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-variation-settings: 'opsz' 40, 'wght' 500, 'SOFT' 0, 'WONK' 0;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    line-height: 1;
+    padding-block: 0.75rem;   /* hit area; the text alone is only ~18px tall */
+  }
+  .nav__markGlyph {
+    font-family: var(--font-sans);
+    font-size: 0.42em;
+    color: var(--accent);
+    transform: translateY(-0.9em);
+    transition: transform var(--dur-mid) var(--ease-out);
+  }
+  .nav__mark:hover .nav__markGlyph { transform: translateY(-0.9em) rotate(180deg); }
+
+  /* --- running head ------------------------------------------------------ */
+  .nav__folio {
+    display: flex;
+    align-items: center;
+    gap: 0.9ch;
+    margin: 0 auto 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-60);
+    white-space: nowrap;
+  }
+  .nav__folio[hidden] { display: none; }
+  .nav__folioNum { color: var(--accent-ink); }
+  .nav__folioRule {
+    display: block;
+    width: 1.6rem;
+    height: 1px;
+    background: var(--rule-strong);
+  }
+  /* Re-run on every swap, keyed by the data-swap attribute the script toggles. */
+  .nav__folio[data-swap] .nav__folioNum,
+  .nav__folio[data-swap] .nav__folioName {
+    animation: folioIn 420ms var(--ease-out) both;
+  }
+  .nav__folio[data-swap] .nav__folioName { animation-delay: 50ms; }
+  @keyframes folioIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav__folio[data-swap] .nav__folioNum,
+    .nav__folio[data-swap] .nav__folioName { animation: none; }
+  }
+
+  @media (max-width: 68rem) {
+    .nav__folio { display: none; }
+  }
+
+  /* --- links ------------------------------------------------------------- */
+  .nav__links { margin-left: auto; }
+  .nav__links ul {
+    display: flex;
+    gap: var(--sp-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav__link {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink-60);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .nav__linkText {
+    position: relative;
+    display: inline-block;
+    padding-block: 0.4rem;
+  }
+  /* A rule that draws in from the left, matching the sheet's hairlines. */
+  .nav__linkText::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform var(--dur-mid) var(--ease-out);
+  }
+  .nav__link:hover { color: var(--ink); }
+  .nav__link:hover .nav__linkText::after,
+  .nav__link:focus-visible .nav__linkText::after { transform: scaleX(1); }
+
+  /* --- cta --------------------------------------------------------------- */
+  .nav__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 0.65rem 1.15rem;
+    border: 1px solid var(--ink);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    text-decoration: none;
+    background: transparent;
+    color: var(--ink);
+    transition:
+      background var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+    will-change: transform;
+  }
+  .nav__cta:hover { background: var(--ink); color: var(--paper); }
+  .nav__ctaArrow { transition: transform var(--dur-mid) var(--ease-out); }
+  .nav__cta:hover .nav__ctaArrow { transform: translateX(3px); }
+
+  /* --- mobile ------------------------------------------------------------ */
+  .nav__toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    margin-right: calc(var(--sp-3) * -1);
+    place-items: center;
+  }
+  .nav__toggleBars {
+    display: block;
+    width: 22px;
+  }
+  .nav__toggleBars i {
+    display: block;
+    height: 1px;
+    background: var(--ink);
+    transition: transform var(--dur-mid) var(--ease-out);
+  }
+  .nav__toggleBars i:first-child { margin-bottom: 6px; }
+  .nav[data-open] .nav__toggleBars i:first-child { transform: translateY(3.5px) rotate(45deg); }
+  .nav[data-open] .nav__toggleBars i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+
+  .nav__sheet {
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+    padding: var(--sp-5) var(--gutter) var(--sp-7);
+  }
+  .nav__sheet[hidden] { display: none; }
+  .nav__sheet ul { list-style: none; margin: 0; padding: 0; }
+  .nav__sheet li + li { border-top: 1px solid var(--rule-faint); }
+  .nav__sheet a {
+    display: block;
+    padding: var(--sp-4) 0;
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-variation-settings: 'opsz' 60, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+    text-decoration: none;
+    letter-spacing: var(--track-heading);
+  }
+  .nav__sheet li:last-child a { color: var(--accent-ink); }
+
+  @media (max-width: 56rem) {
+    .nav__links, .nav__cta { display: none; }
+    .nav__toggle { display: grid; }
+  }
+
+  /* Belt and braces with the resize handler below: above the breakpoint the
+     toggle is display:none, so an open sheet would otherwise be stranded on
+     screen with no control able to close it. */
+  @media (min-width: 56.0625rem) {
+    .nav__sheet { display: none; }
+  }
+</style>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const sheet = document.querySelector<HTMLElement>('[data-nav-sheet]');
+
+  if (nav) {
+    // Hairline under the bar appears once the page has moved off the top.
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        nav.toggleAttribute('data-scrolled', window.scrollY > 12);
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  if (nav && toggle && sheet) {
+    const setOpen = (open: boolean) => {
+      nav.toggleAttribute('data-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      sheet.hidden = !open;
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    // Rotating a phone or dragging a window past the breakpoint hides the
+    // toggle. Without this the sheet stays open and un-closable.
+    const desktop = matchMedia('(min-width: 56.0625rem)');
+    desktop.addEventListener('change', (e) => {
+      if (e.matches) setOpen(false);
+    });
+
+    // Close on navigation and on Escape — a menu you cannot dismiss with the
+    // keyboard is a trap.
+    sheet.querySelectorAll('[data-nav-sheet-link]').forEach((link) => {
+      link.addEventListener('click', () => setOpen(false));
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>

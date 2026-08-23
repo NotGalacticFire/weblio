@@ -1,0 +1,328 @@
+/* ============================================================================
+   THE FOLIO — reset, base elements, and the sheet itself
+   ========================================================================= */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+* { margin: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* No `scroll-behavior: smooth` here — Lenis owns scrolling when it is on,
+     and forcing it here would fight both Lenis and reduced-motion users. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  /* Paper grain, baked straight into the background rather than layered over
+     it. A fixed overlay with mix-blend-mode would force the compositor to
+     re-blend the entire viewport on every scroll frame; a tiling background
+     image costs one decode and nothing after that. */
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: var(--lh-body);
+  font-variation-settings: 'wght' 400;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100svh;
+  overflow-x: clip;
+}
+
+img, picture, svg, video, canvas {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button { background: none; border: none; padding: 0; cursor: pointer; }
+
+p, h1, h2, h3, h4, li, figcaption {
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+h1, h2, h3, h4 { text-wrap: balance; font-weight: 400; }
+
+ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
+
+a { color: inherit; }
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+[data-surface='ink'] ::selection { color: #14110e; }
+
+/* ---------------------------------------------------------------------------
+   Focus — visible, on-brand, and never removed.
+   A vermilion offset rule rather than a browser-blue halo.
+   ------------------------------------------------------------------------ */
+:focus { outline: none; }
+
+:focus-visible {
+  outline: var(--focus-ring) solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Skip link — real, not a token gesture. */
+.skip {
+  position: absolute;
+  top: var(--sp-4);
+  left: var(--sp-4);
+  z-index: 1000;
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.skip:focus-visible { transform: translateY(0); }
+
+/* ---------------------------------------------------------------------------
+   Page shell
+   ------------------------------------------------------------------------ */
+.page {
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* The hairline grid. This is the sheet the whole site is printed on: a real
+   12-column rule set, drawn faintly, that every section aligns to. It is a
+   single fixed background layer, so it costs one paint and never repeats per
+   section. */
+.sheet-grid {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-canvas);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out);
+}
+.sheet-grid[data-ready] { opacity: 1; }
+
+.sheet-grid__inner {
+  width: 100%;
+  max-width: var(--page-max);
+  height: 100%;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), 1fr);
+}
+.sheet-grid__col {
+  border-left: 1px solid var(--rule-faint);
+}
+.sheet-grid__col:last-child { border-right: 1px solid var(--rule-faint); }
+
+/* Below 48rem the 12-column rule set is visual noise; drop to 4. */
+@media (max-width: 48rem) {
+  .sheet-grid__col:nth-child(n + 5) { display: none; }
+  .sheet-grid__inner { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ---------------------------------------------------------------------------
+   Typography primitives
+   ------------------------------------------------------------------------ */
+
+/* Display — Fraunces with every axis pinned explicitly. The shipped file has
+   odd defaults (wght 900, WONK 1), so nothing is left to chance. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-variation-settings:
+    'opsz' var(--opsz-display),
+    'wght' 400,
+    'SOFT' 0,
+    'WONK' 0;
+  line-height: var(--lh-display);
+  letter-spacing: var(--track-display);
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-variation-settings:
+    'opsz' var(--opsz-heading),
+    'wght' 400,
+    'SOFT' 0,
+    'WONK' 0;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-heading);
+}
+
+/* The label voice: mono, uppercase, widely tracked. Folio numbers, eyebrows,
+   field hints, footer meta. */
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-variation-settings: 'wght' 500;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--ink-60);
+  font-feature-settings: 'tnum' 1;
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: var(--lh-snug);
+  max-width: var(--measure-sm);
+  color: var(--ink-90);
+  text-wrap: pretty;
+}
+
+.prose {
+  max-width: var(--measure);
+  color: var(--ink-90);
+}
+.prose > * + * { margin-top: 1em; }
+
+/* Numerals in tabular contexts should not jitter. */
+.tnum { font-feature-settings: 'tnum' 1; font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------------------
+   Rules — the drawn structure
+   ------------------------------------------------------------------------ */
+.rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  width: 100%;
+}
+.rule--strong { border-top-color: var(--rule-strong); }
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   Rectangular, ruled, mono-labelled. The solid variant fills from the bottom
+   edge on hover — a printed block being inked, not a colour fade.
+   ------------------------------------------------------------------------ */
+.btn {
+  --btn-fill: var(--ink);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8ch;
+  padding: 0.95rem 1.5rem;
+  min-height: 44px;              /* touch target floor */
+  border: 1px solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-variation-settings: 'wght' 500;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: transparent;
+  overflow: hidden;
+  isolation: isolate;
+  will-change: transform;
+  transition: color var(--dur-mid) var(--ease-out);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--btn-fill);
+  transform: scaleY(0);
+  transform-origin: 50% 100%;
+  transition: transform var(--dur-mid) var(--ease-out);
+}
+
+.btn:hover,
+.btn:focus-visible { color: var(--paper); }
+.btn:hover::before,
+.btn:focus-visible::before { transform: scaleY(1); }
+
+.btn--solid { background: var(--ink); color: var(--paper); --btn-fill: var(--accent); }
+.btn--solid:hover,
+.btn--solid:focus-visible { color: var(--paper); }
+
+.btn__arrow { transition: transform var(--dur-mid) var(--ease-out); }
+.btn:hover .btn__arrow { transform: translateX(4px); }
+
+.btn:active { transform: translateY(1px); }
+
+/* ---------------------------------------------------------------------------
+   Reveal system
+   Elements only start hidden when JS is present AND motion is allowed.
+   Without JS, or under reduced motion, everything is simply visible — the
+   page can never trap content in an un-revealed state.
+   ------------------------------------------------------------------------ */
+/* Hidden only until the element has been revealed. The running Web Animation
+   overrides these declarations while it plays, and the script sets
+   [data-revealed] before cancelling the animation, so there is no frame in
+   which the element is both un-animated and hidden. */
+.js [data-reveal]:not([data-revealed]):not(h1) {
+  opacity: 0;
+}
+
+/* The h1 is the largest contentful paint on every page, so it is never hidden
+   by script — waiting for JS to reveal it adds the whole script-parse plus
+   animation duration directly to LCP. It gets a CSS entrance that begins
+   before the first paint instead. `backwards` fill holds the from-state during
+   the delay and leaves nothing behind afterwards. */
+.js h1[data-reveal] {
+  animation: riseIn 560ms var(--ease-out) backwards;
+  animation-delay: 60ms;
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Rules are drawn, so they must start collapsed rather than snapping to zero
+   width at the moment their animation begins. */
+.js [data-rule]:not([data-revealed]) {
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal],
+  .js [data-rule] { opacity: 1 !important; transform: none !important; }
+  .js h1[data-reveal] { animation: none !important; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Screen-reader-only, but focusable when it needs to be. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

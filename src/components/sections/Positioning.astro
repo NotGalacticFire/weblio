@@ -1,0 +1,74 @@
+---
+import { positioning } from '../../data/site';
+---
+
+<section class="positioning" aria-labelledby="positioning-heading">
+  <div class="page positioning__inner">
+    <header class="positioning__folio" data-reveal>
+      <p class="label">{positioning.label}</p>
+      <span class="label tnum" aria-label={`Folio ${positioning.folio}`}>{positioning.folio}</span>
+    </header>
+    <hr class="rule" data-rule />
+
+    <div class="positioning__grid">
+      <h2 class="display positioning__statement" id="positioning-heading" data-reveal>
+        {positioning.statement.map((line) => <span>{line}</span>)}
+      </h2>
+
+      <div class="prose positioning__body" data-reveal>
+        {positioning.body.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .positioning {
+    position: relative;
+    z-index: var(--z-content);
+    background: var(--paper);
+    padding-block: var(--sp-section);
+  }
+
+  .positioning__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .positioning__grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: end;
+    padding-top: var(--sp-8);
+  }
+
+  .positioning__statement {
+    grid-column: 1 / span 8;
+    font-size: var(--display-md);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .positioning__statement span { display: block; }
+  .positioning__statement span:nth-child(3) { color: var(--accent); }
+
+  .positioning__body {
+    grid-column: 9 / -1;
+    padding-bottom: var(--sp-2);
+  }
+
+  @media (max-width: 64rem) {
+    .positioning__statement { grid-column: 1 / span 9; }
+    .positioning__body { grid-column: 7 / -1; margin-top: var(--sp-6); }
+  }
+
+  @media (max-width: 48rem) {
+    .positioning__grid { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    .positioning__statement,
+    .positioning__body { grid-column: 1 / -1; }
+    .positioning__body { max-width: var(--measure-sm); padding-top: var(--sp-5); }
+  }
+</style>

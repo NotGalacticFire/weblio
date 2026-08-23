@@ -1,0 +1,89 @@
+---
+import Base from '../layouts/Base.astro';
+import { contact, site } from '../data/site';
+---
+
+<Base title={`404 — ${site.name}`} description={site.description} path="/404">
+  <section class="not-found" aria-labelledby="not-found-heading">
+    <div class="page not-found__inner">
+      <header class="not-found__folio" data-reveal>
+        <p class="label">{site.name}</p>
+        <span class="label tnum">404</span>
+      </header>
+      <hr class="rule" data-rule />
+
+      <div class="not-found__grid">
+        <h1 class="display not-found__heading" id="not-found-heading" data-reveal>404</h1>
+        <div class="not-found__aside" data-reveal>
+          <p class="lede">{site.description}</p>
+          <div class="not-found__actions">
+            <a class="btn btn--solid" href="/">
+              <span>{site.name}</span>
+              <span class="btn__arrow" aria-hidden="true">→</span>
+            </a>
+            <a class="btn" href={contact.cta.href}>{contact.cta.label}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .not-found {
+    position: relative;
+    z-index: var(--z-content);
+    min-height: 100svh;
+    display: flex;
+    background: var(--paper);
+    padding-block: calc(var(--nav-h, 4.5rem) + var(--sp-8)) var(--sp-8);
+  }
+
+  .not-found__inner { display: flex; flex-direction: column; }
+
+  .not-found__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .not-found__grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: end;
+    padding-top: var(--sp-8);
+  }
+
+  .not-found__heading {
+    grid-column: 1 / span 8;
+    color: var(--accent);
+    font-size: var(--display-lg);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .not-found__aside {
+    grid-column: 9 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-6);
+    padding-bottom: var(--sp-5);
+  }
+
+  .not-found__actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+
+  @media (max-width: 56rem) {
+    .not-found__heading { grid-column: 1 / span 8; }
+    .not-found__aside { grid-column: 7 / -1; }
+  }
+
+  @media (max-width: 48rem) {
+    .not-found__grid { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    .not-found__heading,
+    .not-found__aside { grid-column: 1 / -1; }
+  }
+</style>

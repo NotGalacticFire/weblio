@@ -1,0 +1,89 @@
+---
+import { services } from '../../data/site';
+---
+
+<section class="services" id="services" aria-labelledby="services-heading">
+  <div class="page services__inner">
+    <header class="services__folio" data-reveal>
+      <p class="label">{services.label}</p>
+      <span class="label tnum" aria-label={`Folio ${services.folio}`}>{services.folio}</span>
+    </header>
+    <hr class="rule" data-rule />
+
+    <h2 class="display services__heading" id="services-heading" data-reveal>{services.heading}</h2>
+
+    <ol class="services__list" role="list">
+      {services.items.map((item) => (
+        <li class="services__item" data-reveal>
+          <span class="label services__number tnum">{item.n}</span>
+          <h3 class="heading services__title">{item.title}</h3>
+          <p class="services__body">{item.body}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .services {
+    position: relative;
+    z-index: var(--z-content);
+    background: var(--paper);
+    padding-block: var(--sp-section);
+  }
+
+  .services__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .services__heading {
+    max-width: 10ch;
+    padding-block: var(--sp-8);
+    font-size: var(--display-md);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .services__list { border-bottom: 1px solid var(--rule-strong); }
+
+  .services__item {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: baseline;
+    padding-block: var(--sp-6);
+    border-top: 1px solid var(--rule-strong);
+  }
+
+  .services__number { grid-column: 1 / span 2; color: var(--accent-ink); }
+
+  .services__title {
+    grid-column: 3 / span 4;
+    font-size: var(--step-3);
+    font-variation-settings: 'opsz' 72, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .services__body { grid-column: 7 / -1; max-width: var(--measure); color: var(--ink-90); }
+
+  @media (max-width: 56rem) {
+    .services__number { grid-column: 1 / span 1; }
+    .services__title { grid-column: 2 / span 5; }
+    .services__body { grid-column: 7 / -1; }
+  }
+
+  @media (max-width: 48rem) {
+    .services__item { grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+    .services__number { grid-column: 1 / span 1; }
+    .services__title { grid-column: 2 / -1; }
+    .services__body { grid-column: 2 / -1; }
+  }
+
+  @media (max-width: 24rem) {
+    .services__number,
+    .services__title,
+    .services__body { grid-column: 1 / -1; }
+  }
+</style>

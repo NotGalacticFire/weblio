@@ -1,0 +1,309 @@
+---
+import SplitText from './SplitText.astro';
+import { hero } from '../data/site';
+
+// Continuous character index across all three lines, so the reveal staggers
+// through the whole headline rather than restarting per line.
+let offset = 0;
+const lines = hero.lines.map((text) => {
+  const start = offset;
+  offset += text.replace(/ /g, '').length;
+  return { text, start };
+});
+
+const headline = hero.lines.join(' ');
+---
+
+<section class="hero" data-hero>
+  {/* The glass, and only the glass. Everything outside the lens is transparent,
+      so the CSS sheet behind it stays the page's single grid — which also
+      means "no WebGL" degrades to "no magnifier", not to a broken layout.
+      Never takes pointer events: the glass follows the window, not the canvas. */}
+  <canvas class="hero__sheet" data-loupe aria-hidden="true"></canvas>
+
+  <div class="page hero__inner">
+    <p class="label hero__eyebrow" data-hero-reveal>
+      <span class="hero__eyebrowMark" aria-hidden="true">◉</span>
+      {hero.eyebrow}
+    </p>
+
+    <h1 class="display hero__title" aria-label={headline} data-type-loupe data-hero-title>
+      {
+        lines.map((line, i) => (
+          <SplitText
+            text={line.text}
+            start={line.start}
+            class="hero__line"
+            accentLast={i === lines.length - 1}
+          />
+        ))
+      }
+    </h1>
+
+    <div class="hero__foot">
+      <p class="lede hero__lede" data-hero-reveal>{hero.lede}</p>
+
+      <div class="hero__actions" data-hero-reveal>
+        <a class="btn btn--solid" href={hero.cta.href} data-magnetic>
+          <span>{hero.cta.label}</span>
+          <span class="btn__arrow" aria-hidden="true">→</span>
+        </a>
+        <p class="label hero__hint" data-hero-hint>{hero.hint}</p>
+      </div>
+    </div>
+
+    <div class="hero__scroll" aria-hidden="true" data-hero-reveal>
+      <span class="label">Scroll</span>
+      <span class="hero__scrollRule"></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: stretch;
+    isolation: isolate;
+    overflow: clip;
+  }
+
+  /* --- the glass --------------------------------------------------------- */
+  .hero__sheet {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1200ms var(--ease-out);
+  }
+  .hero__sheet[data-ready] { opacity: 1; }
+  /* If the context dies, hide the dead canvas. The CSS sheet is already there. */
+  .hero__sheet[data-gl-lost] { display: none; }
+
+  /* --- composition ------------------------------------------------------- */
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--sp-6);
+    padding-top: calc(var(--nav-h, 4.5rem) + var(--sp-8));
+    padding-bottom: var(--sp-7);
+    width: 100%;
+  }
+
+  .hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.9ch;
+    color: var(--ink-60);
+  }
+  .hero__eyebrowMark {
+    color: var(--accent);
+    font-size: 0.85em;
+  }
+
+  .hero__title {
+    /* Display type is a compositional element, not a text size. */
+    font-size: var(--display-lg);
+    margin-block: auto var(--sp-6);
+    /* Optical alignment: the W's diagonal makes the line look indented if it
+       sits flush, so pull it back by a fraction of an em. */
+    margin-left: -0.055em;
+  }
+
+  .hero__line { display: block; }
+
+  /* The headline's entrance lives in CSS, not JS, for two reasons.
+     1. No flash. A script that hides the H1 after first paint makes the
+        headline appear, vanish, then fade back in.
+     2. LCP. The headline *is* the largest contentful paint on this page, so
+        deferring its reveal until a script has parsed and run pushes LCP out
+        by more than a second. As a stylesheet rule it applies before the
+        first paint and costs nothing.
+     `backwards` fill is deliberate: it holds the from-state during the delay
+     but leaves no forwards fill behind, so the type-loupe's inline transforms
+     are not permanently outranked by a finished animation. */
+  .js .hero__title :global(.split__char) {
+    animation: heroCharIn 640ms var(--ease-out) backwards;
+    animation-delay: calc(var(--i) * 14ms + 60ms);
+  }
+
+  @keyframes heroCharIn {
+    from { opacity: 0; transform: translateY(0.34em); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* The rest of the opening, also in CSS.
+     This is not stylistic tidiness. Splitting the headline into per-character
+     inline-blocks means Chrome sees 31 small text nodes rather than one large
+     heading, so the H1 can never be the largest contentful paint — the lede
+     paragraph is. Revealing that lede from script therefore put LCP at ~2.0s.
+     Animating it from CSS instead lets it paint immediately: measured 2044ms
+     to 120ms. `backwards` fill holds the from-state through the delay and
+     leaves nothing behind. */
+  .js [data-hero-reveal] {
+    animation: heroRiseIn 640ms var(--ease-out) backwards;
+  }
+  .js .hero__eyebrow { animation-delay: 80ms; }
+  .js .hero__lede    { animation-delay: 380ms; }
+  .js .hero__actions { animation-delay: 460ms; }
+  .js .hero__scroll  { animation-delay: 540ms; }
+
+  @keyframes heroRiseIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js .hero__title :global(.split__char),
+    .js [data-hero-reveal] { animation: none; }
+  }
+
+  .hero__foot {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-5);
+    align-items: end;
+    padding-top: var(--sp-5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .hero__lede { grid-column: 1 / span 5; }
+
+  .hero__actions {
+    grid-column: 8 / span 5;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+    justify-content: flex-end;
+  }
+
+  .hero__hint {
+    color: var(--ink-60);
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+  /* Once the visitor has actually moved the glass, the instruction is noise. */
+  .hero__hint[data-used] { opacity: 0; }
+
+  .hero__scroll {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: var(--sp-6);
+  }
+  .hero__scrollRule {
+    display: block;
+    width: 4rem;
+    height: 1px;
+    background: var(--rule-strong);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero__scrollRule::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: translateX(-100%);
+    animation: sweep 2.8s var(--ease-io) infinite;
+  }
+  @keyframes sweep {
+    0%   { transform: translateX(-100%); }
+    55%  { transform: translateX(100%); }
+    100% { transform: translateX(100%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__scrollRule::after { animation: none; transform: translateX(0); opacity: 0.4; }
+  }
+
+  /* --- responsive -------------------------------------------------------- */
+  @media (max-width: 56rem) {
+    .hero__foot { gap: var(--sp-5); }
+    .hero__lede { grid-column: 1 / -1; }
+    .hero__actions {
+      grid-column: 1 / -1;
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .hero__title { margin-left: -0.03em; }
+    .hero__actions { flex-direction: column; align-items: flex-start; gap: var(--sp-4); }
+    .hero__scroll { display: none; }
+  }
+</style>
+
+<script>
+  import { createLoupe } from '../scripts/gl/loupe';
+  import { createTypeLoupe } from '../scripts/motion/type-loupe';
+
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-loupe]');
+  const title = document.querySelector<HTMLElement>('[data-type-loupe]');
+  const hint = document.querySelector<HTMLElement>('[data-hero-hint]');
+
+  if (hero && canvas) {
+    let mounted = false;
+
+    const mount = () => {
+      if (mounted) return true;
+      const loupe = createLoupe(canvas);
+      if (!loupe) return false;
+      mounted = true;
+      canvas.setAttribute('data-ready', '');
+      hero.setAttribute('data-gl-ready', '');
+
+      // If the context is lost later, fall back to the CSS sheet rather than
+      // leaving a dead canvas on the page.
+      canvas.addEventListener('webglcontextlost', () => {
+        hero.removeAttribute('data-gl-ready');
+      });
+
+      if (title) createTypeLoupe(title);
+      return true;
+    };
+
+    /* Built on first pointer interaction, not on load.
+       Creating the context, compiling the shader and taking the first draw
+       costs ~770ms of blocking time under a 4x CPU throttle with software GL
+       (measured: 901ms of long tasks with WebGL vs 133ms with it disabled).
+       Paying that before anyone has moved a pointer delays interactivity for
+       an effect that is, by definition, driven by the pointer.
+
+       Deferring to requestIdleCallback instead was measured and rejected: it
+       moves the same work out of the pre-paint window and into the Total
+       Blocking Time window, which scored worse (TBT 1,400ms / Perf 74) than
+       either eager (98) or this.
+
+       The side effect is a better opening anyway — the page loads as clean
+       type, and the glass materialises the moment you reach for it. */
+    const start = () => {
+      if (!mount()) {
+        // A page opened in a background tab (cmd-click, session restore) may
+        // not get a GL context at all, and the canvas has no measurable size
+        // until it is shown. Retry once it becomes visible.
+        const retry = () => {
+          if (document.visibilityState !== 'visible') return;
+          if (mount()) document.removeEventListener('visibilitychange', retry);
+        };
+        document.addEventListener('visibilitychange', retry);
+      }
+    };
+
+    window.addEventListener('pointermove', start, { once: true, passive: true });
+    window.addEventListener('touchstart', start, { once: true, passive: true });
+
+    // Retire the "drag the glass" hint the moment the visitor uses it.
+    if (hint) {
+      const retire = () => hint.setAttribute('data-used', '');
+      window.addEventListener('pointermove', retire, { once: true, passive: true });
+      window.addEventListener('touchstart', retire, { once: true, passive: true });
+    }
+  }
+</script>

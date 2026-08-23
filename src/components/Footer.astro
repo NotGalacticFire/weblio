@@ -1,0 +1,117 @@
+---
+import { site, nav } from '../data/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="foot" data-surface="ink">
+  <div class="page foot__inner">
+    <div class="foot__lead">
+      <p class="label">Colophon</p>
+      {/* Every claim here has to stay true. GSAP was removed in favour of
+          IntersectionObserver and the Web Animations API, so it no longer
+          appears — the colophon is not decoration. */}
+      <p class="foot__note">
+        Set in Fraunces and Instrument Sans, subset to 110 KB. Built with Astro,
+        about a hundred lines of GLSL, and no runtime framework. No template,
+        no page builder.
+      </p>
+    </div>
+
+    <nav class="foot__nav" aria-label="Footer">
+      <ul role="list">
+        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="foot__contact">
+      <p class="label">Direct</p>
+      <a class="foot__email" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+  </div>
+
+  <div class="page foot__meta">
+    <span class="label">{site.domain}</span>
+    <span class="label">{site.person} &nbsp;·&nbsp; {year}</span>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    background: var(--paper);
+    color: var(--ink);
+    position: relative;
+    z-index: var(--z-content);
+    padding-top: var(--sp-9);
+  }
+
+  .foot__inner {
+    display: grid;
+    gap: var(--sp-7);
+    grid-template-columns: repeat(12, 1fr);
+    padding-bottom: var(--sp-8);
+  }
+
+  .foot__lead { grid-column: 1 / span 5; }
+  .foot__nav { grid-column: 7 / span 2; }
+  .foot__contact { grid-column: 10 / span 3; }
+
+  .foot__note {
+    margin-top: var(--sp-4);
+    color: var(--ink-60);
+    max-width: 34ch;
+    font-size: var(--step--1);
+    line-height: var(--lh-body);
+  }
+
+  .foot__nav ul { list-style: none; margin: 0; padding: 0; }
+  .foot__nav a {
+    display: inline-block;
+    /* Real hit area. These sat at ~22px tall, under the 24px minimum. */
+    padding-block: 0.6rem;
+    text-decoration: none;
+    color: var(--ink-60);
+    font-size: var(--step--1);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .foot__nav a:hover { color: var(--ink); }
+
+  .foot__email {
+    display: inline-block;
+    padding-block: 0.4rem;
+    margin-top: var(--sp-4);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-variation-settings: 'opsz' 60, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+    letter-spacing: var(--track-heading);
+    text-decoration: none;
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur-mid) var(--ease-out);
+  }
+  .foot__email:hover,
+  .foot__email:focus-visible { background-size: 100% 1px; }
+
+  .foot__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sp-4);
+    padding-block: var(--sp-5);
+    border-top: 1px solid var(--rule);
+  }
+
+  @media (max-width: 56rem) {
+    .foot__inner { gap: var(--sp-6); }
+    .foot__lead { grid-column: 1 / -1; }
+    .foot__nav { grid-column: 1 / span 6; }
+    .foot__contact { grid-column: 7 / -1; }
+  }
+
+  @media (max-width: 34rem) {
+    .foot__nav, .foot__contact { grid-column: 1 / -1; }
+    .foot__meta { flex-direction: column; align-items: flex-start; }
+  }
+</style>

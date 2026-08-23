@@ -1,0 +1,113 @@
+---
+import { process } from '../../data/site';
+---
+
+<section class="process" id="process" data-surface="ink" aria-labelledby="process-heading">
+  <div class="page process__inner">
+    <header class="process__folio" data-reveal>
+      <p class="label">{process.label}</p>
+      <span class="label tnum" aria-label={`Folio ${process.folio}`}>{process.folio}</span>
+    </header>
+    <hr class="rule" data-rule />
+
+    <h2 class="display process__heading" id="process-heading" data-reveal>{process.heading}</h2>
+
+    <ol class="process__list" role="list">
+      {process.steps.map((step) => (
+        <li class="process__step" data-reveal>
+          <span class="display process__number tnum" aria-hidden="true">{step.n}</span>
+          <div class="process__copy">
+            <h3 class="heading process__title"><span class="sr-only">{step.n}. </span>{step.title}</h3>
+            <p class="process__body">{step.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .process {
+    position: relative;
+    z-index: var(--z-content);
+    background: var(--paper);
+    color: var(--ink);
+    padding-block: var(--sp-section);
+  }
+
+  .process__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .process__heading {
+    max-width: 11ch;
+    padding-block: var(--sp-8);
+    font-size: var(--display-md);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .process__list {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+
+  .process__step {
+    grid-column: span 3;
+    min-width: 0;
+    padding: var(--sp-6);
+    border-left: 1px solid var(--rule-strong);
+  }
+  .process__step:last-child { border-right: 1px solid var(--rule-strong); }
+
+  .process__number {
+    display: block;
+    color: var(--accent);
+    font-size: var(--step-5);
+    font-variation-settings: 'opsz' 72, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .process__copy { margin-top: var(--sp-8); }
+
+  .process__title {
+    font-size: var(--step-2);
+    font-variation-settings: 'opsz' 72, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+
+  .process__body {
+    margin-top: var(--sp-4);
+    color: var(--ink-60);
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 64rem) {
+    .process__step { grid-column: span 6; border-bottom: 1px solid var(--rule-strong); }
+    .process__step:nth-child(2n) { border-right: 1px solid var(--rule-strong); }
+    .process__step:nth-last-child(-n + 2) { border-bottom: 0; }
+  }
+
+  @media (max-width: 48rem) {
+    .process__list { display: block; }
+    .process__step {
+      display: grid;
+      grid-template-columns: 4rem 1fr;
+      gap: var(--sp-4);
+      padding: var(--sp-5) var(--sp-4);
+      border-right: 1px solid var(--rule-strong);
+      border-bottom: 1px solid var(--rule-strong);
+    }
+    .process__step:nth-last-child(2) { border-bottom: 1px solid var(--rule-strong); }
+    .process__step:last-child { border-bottom: 0; }
+    .process__number { font-size: var(--step-3); }
+    .process__copy { margin-top: 0; }
+  }
+
+  @media (max-width: 24rem) {
+    .process__step { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,293 @@
+---
+import { contact, site } from '../data/site';
+
+/**
+ * The form always renders.
+ *
+ * An earlier version swapped the whole form for a mailto button when no
+ * Web3Forms key was configured, which meant the site's single conversion path
+ * silently degraded to "here is an email address" — and, since the key is unset
+ * until deploy, that is what anyone reviewing the site would actually see.
+ *
+ * Instead: with a key, it posts to Web3Forms. Without one, the same form
+ * composes a pre-filled mail-client draft on submit. No dead form either way.
+ *
+ * The no-JS path matters too. With a key the plain POST to Web3Forms works on
+ * its own. Without one, leaving `action` unset makes the browser POST to the
+ * current URL — which on a static host just reloads the contact page and
+ * silently discards everything the visitor typed. The mailto action with
+ * enctype="text/plain" hands them a composed draft instead.
+ */
+const accessKey = import.meta.env.PUBLIC_WEB3FORMS_KEY?.trim();
+---
+
+<form
+  class="contact-form"
+  action={accessKey ? 'https://api.web3forms.com/submit' : `mailto:${site.email}`}
+  enctype={accessKey ? undefined : 'text/plain'}
+  method="post"
+  data-contact-form
+  data-email={site.email}
+  data-mode={accessKey ? 'post' : 'mailto'}
+  novalidate
+>
+  {accessKey && <input type="hidden" name="access_key" value={accessKey} />}
+  {accessKey && <input type="hidden" name="subject" value="New project enquiry — weblio.design" />}
+
+  {/* Honeypot. aria-hidden as well as visually hidden: .sr-only keeps content
+      in the accessibility tree, so without this a screen reader user would be
+      offered a checkbox that exists only to catch bots. */}
+  <input
+    type="checkbox"
+    name="botcheck"
+    class="sr-only"
+    tabindex="-1"
+    autocomplete="off"
+    aria-hidden="true"
+  />
+
+  <div class="contact-form__fields">
+    <div class="field">
+      <label class="label" for="contact-name">Name</label>
+      <input id="contact-name" name="name" type="text" autocomplete="name" required />
+    </div>
+
+    <div class="field">
+      <label class="label" for="contact-business">Business</label>
+      <input id="contact-business" name="business" type="text" autocomplete="organization" required />
+    </div>
+
+    <div class="field field--wide">
+      <label class="label" for="contact-website">Current website <span>(optional)</span></label>
+      <input id="contact-website" name="website" type="url" autocomplete="url" inputmode="url" placeholder="https://" />
+    </div>
+
+    <div class="field field--wide">
+      <label class="label" for="contact-change">What are you looking to change?</label>
+      <textarea id="contact-change" name="message" rows="6" required></textarea>
+    </div>
+
+    <div class="field field--wide">
+      <label class="label" for="contact-email">Email</label>
+      <input id="contact-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+    </div>
+  </div>
+
+  <div class="contact-form__foot">
+    <button class="btn btn--solid" type="submit" data-submit>
+      <span data-submit-label>{contact.cta.label}</span>
+      <span class="btn__arrow" aria-hidden="true">→</span>
+    </button>
+
+    <p class="contact-form__status" data-form-status role="status" aria-live="polite" aria-atomic="true"></p>
+  </div>
+
+  <p class="contact-form__alt">
+    Or email <a href={`mailto:${site.email}`}>{site.email}</a> directly.
+  </p>
+</form>
+
+<style>
+  .contact-form { border-top: 1px solid var(--rule-strong); }
+
+  .contact-form__fields {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: var(--sp-6);
+  }
+
+  /* One rule per field, not two. The input carries no border of its own — the
+     field's bottom rule is the affordance, and it reacts to focus and to
+     validity. Two stacked hairlines 20px apart just read as a mistake. */
+  .field {
+    grid-column: span 6;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    padding-block: var(--sp-5) var(--sp-4);
+    border-bottom: 1px solid var(--ink-30);
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .field:hover { border-bottom-color: var(--ink-60); }
+  .field:focus-within { border-bottom-color: var(--accent); }
+  .field:has([aria-invalid='true']) { border-bottom-color: var(--accent-ink); }
+
+  .field--wide { grid-column: 1 / -1; }
+
+  /* No extra opacity here. The label is already --ink-60; dimming it further
+     took "(optional)" to roughly 2.5:1, which is what Lighthouse flagged. The
+     parentheses carry the meaning on their own. */
+  .field label span { font-variation-settings: 'wght' 400; }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--sp-2) 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    font-size: var(--step-1);
+  }
+
+  .field input::placeholder { color: var(--ink-30); }
+  .field textarea { min-height: 9rem; resize: vertical; font-size: var(--step-0); }
+
+  /* The field rule already signals focus; a ring around the input as well is
+     noise. Keep a ring only for the textarea, whose box is large enough that
+     the rule alone is easy to miss. */
+  .field input:focus-visible { outline: none; }
+  .field textarea:focus-visible { outline-offset: 4px; }
+
+  .contact-form__foot {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-5);
+    align-items: center;
+    padding-top: var(--sp-6);
+  }
+
+  .contact-form__foot .btn { grid-column: 1 / span 3; justify-content: center; }
+
+  .contact-form__status {
+    grid-column: 4 / -1;
+    color: var(--ink-60);
+    font-size: var(--step--1);
+  }
+  /* --accent-ink, not --accent: error text is well under 24px and the brighter
+     vermilion is only 3.42:1 on paper. */
+  .contact-form__status[data-state='error'] { color: var(--accent-ink); }
+  .contact-form__status[data-state='success'] { color: var(--ink); }
+
+  .contact-form__alt {
+    margin-top: var(--sp-6);
+    font-size: var(--step--1);
+    color: var(--ink-60);
+  }
+  .contact-form__alt a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+    text-decoration-color: var(--ink-30);
+  }
+  .contact-form__alt a:hover { text-decoration-color: var(--accent); }
+
+  @media (max-width: 48rem) {
+    .contact-form__fields,
+    .contact-form__foot { grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+    .field,
+    .field--wide { grid-column: 1 / -1; }
+    .contact-form__foot .btn,
+    .contact-form__status { grid-column: 1 / -1; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const submitLabel = form.querySelector<HTMLElement>('[data-submit-label]');
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const defaultLabel = submitLabel?.textContent ?? '';
+    const email = form.dataset.email ?? '';
+    const mailtoMode = form.dataset.mode === 'mailto';
+
+    const setStatus = (message: string, state: 'idle' | 'loading' | 'success' | 'error') => {
+      if (!status) return;
+      status.textContent = message;
+      status.dataset.state = state;
+    };
+
+    const controls = Array.from(
+      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+        'input:not([type="hidden"]):not([name="botcheck"]), textarea'
+      )
+    );
+
+    // Clear the invalid state as soon as the field becomes valid, rather than
+    // making the visitor submit again to find out.
+    controls.forEach((control) => {
+      control.addEventListener('input', () => {
+        if (control.validity.valid) {
+          control.removeAttribute('aria-invalid');
+          if (status?.dataset.state === 'error') setStatus('', 'idle');
+        }
+      });
+    });
+
+    const validate = () => {
+      const invalid = controls.filter((c) => !c.validity.valid);
+      // setAttribute('aria-invalid', 'true'), NOT toggleAttribute: the latter
+      // sets the attribute to the empty string, which assistive tech reads as
+      // "not invalid" and which `[aria-invalid="true"]` never matches — so both
+      // the announcement and the error styling silently do nothing.
+      controls.forEach((c) => {
+        if (c.validity.valid) c.removeAttribute('aria-invalid');
+        else c.setAttribute('aria-invalid', 'true');
+      });
+      if (!invalid.length) return true;
+
+      const first = invalid[0];
+      if (first) {
+        const label = first.labels?.[0]?.textContent?.trim().replace(/\s*\(optional\)$/i, '') ?? '';
+        setStatus(`${label}: ${first.validationMessage}`, 'error');
+        first.focus();
+      }
+      return false;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!validate()) return;
+
+      const data = new FormData(form);
+
+      if (mailtoMode) {
+        // No submission endpoint configured: hand a fully composed draft to the
+        // visitor's mail client instead of failing.
+        const body = [
+          `Name: ${data.get('name')}`,
+          `Business: ${data.get('business')}`,
+          `Current website: ${data.get('website') || '—'}`,
+          '',
+          'What they want to change:',
+          `${data.get('message')}`,
+          '',
+          `Reply to: ${data.get('email')}`,
+        ].join('\n');
+        const href =
+          `mailto:${email}` +
+          `?subject=${encodeURIComponent('New project enquiry — weblio.design')}` +
+          `&body=${encodeURIComponent(body)}`;
+        window.location.href = href;
+        setStatus('Opening your email app with the details filled in.', 'success');
+        return;
+      }
+
+      if (submit) submit.disabled = true;
+      form.setAttribute('aria-busy', 'true');
+      if (submitLabel) submitLabel.textContent = 'Sending…';
+      setStatus('Sending your project details.', 'loading');
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: data,
+          headers: { Accept: 'application/json' },
+        });
+        const result = (await response.json()) as { success?: boolean; message?: string };
+        if (!response.ok || !result.success) throw new Error(result.message ?? 'Submission failed');
+
+        form.reset();
+        controls.forEach((c) => c.removeAttribute('aria-invalid'));
+        setStatus('Thank you — that came through. I will reply within a day or two.', 'success');
+      } catch {
+        setStatus(`Something went wrong. Please email ${email} instead.`, 'error');
+      } finally {
+        if (submit) submit.disabled = false;
+        form.removeAttribute('aria-busy');
+        if (submitLabel) submitLabel.textContent = defaultLabel;
+      }
+    });
+  });
+</script>
