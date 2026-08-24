@@ -41,7 +41,7 @@ const VIEWPORTS = [
   { name: 'desktop', width: 1728, height: 1080, dpr: 2, mobile: false },
 ];
 
-const PAGES = ['/', '/contact', '/does-not-exist'];
+const PAGES = ['/', '/contact', '/privacy', '/does-not-exist'];
 
 // Evaluated inside the page. Declared once so the pre-scroll and post-scroll
 // samples measure identically.

@@ -1,0 +1,248 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+
+/**
+ * Written to describe what this site ACTUALLY does, not from a template.
+ * If the contact form, host, or form processor ever changes, this page has to
+ * change with it — an inaccurate privacy policy is worse than none, because
+ * CalOPPA makes failing to follow your own stated policy the violation.
+ */
+const updated = '23 August 2026';
+---
+
+<Base
+  title={`Privacy — ${site.name}`}
+  description="What weblio.design collects, where it goes, and how to have it deleted. No cookies, no analytics, no tracking."
+  path="/privacy"
+>
+  <section class="legal" aria-labelledby="privacy-heading">
+    <div class="page legal__inner">
+      <header class="legal__folio" data-reveal>
+        <p class="label">Privacy</p>
+        <span class="label tnum">—</span>
+      </header>
+      <hr class="rule" data-rule />
+
+      <div class="legal__lead">
+        <h1 class="display legal__heading" id="privacy-heading" data-reveal>
+          <span>What this site</span>
+          <span>knows about you.</span>
+        </h1>
+        <p class="lede legal__lede" data-reveal>
+          Almost nothing, and only if you choose to tell me. Here is the whole of it,
+          in plain English.
+        </p>
+      </div>
+
+      <div class="legal__body prose" data-reveal>
+        <h2>The short version</h2>
+        <p>
+          This site sets <strong>no cookies</strong>, runs <strong>no analytics</strong>,
+          and contains <strong>no tracking pixels, advertising tags or third-party
+          scripts</strong>. Reading it leaves nothing behind. The only personal
+          information I ever receive is what you type into the contact form and send
+          me on purpose.
+        </p>
+
+        <h2>What I collect, and when</h2>
+        <p>
+          Nothing at all until you submit the contact form. When you do, I receive
+          exactly the fields you filled in:
+        </p>
+        <ul>
+          <li>Your name</li>
+          <li>Your business name</li>
+          <li>Your current website address, if you gave one — this field is optional</li>
+          <li>What you wrote in the message</li>
+          <li>Your email address</li>
+        </ul>
+        <p>
+          That is the complete list. There are no hidden fields collecting anything
+          else.
+        </p>
+
+        <h2>Where it goes</h2>
+        <p>
+          The form is handled by <a href="https://web3forms.com" rel="noopener">Web3Forms</a>,
+          a service that takes the submission and emails it to me. Their servers are
+          in the United States. They may retain a copy of the submission and server
+          logs for a limited period under{' '}
+          <a href="https://web3forms.com/privacy" rel="noopener">their own privacy terms</a>.
+          Once it reaches me, it sits in my email inbox at{' '}
+          <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+        <p>
+          The site itself is hosted on Cloudflare Pages, which keeps standard server
+          logs — including visitor IP addresses — as part of serving and protecting
+          the site. That is infrastructure logging, not something I collect or look
+          at.
+        </p>
+
+        <h2>What I do not do</h2>
+        <ul>
+          <li>I do not sell your information. To anyone. Ever.</li>
+          <li>I do not share it with third parties beyond the two above, which exist purely to deliver the message and serve the page.</li>
+          <li>I do not add you to a mailing list or send you marketing.</li>
+          <li>I do not build a profile of you or track you across other websites.</li>
+          <li>No third party is permitted to collect personal information about your activity across other sites through this one.</li>
+        </ul>
+
+        <h2>How long I keep it</h2>
+        <p>
+          Enquiries stay in my inbox for as long as they are useful — while we are
+          talking, and for a reasonable period afterwards in case you come back. If
+          nothing comes of it, I delete it.
+        </p>
+
+        <h2>Do Not Track</h2>
+        <p>
+          This site does not track you, so a Do Not Track signal from your browser
+          needs no special handling. The behaviour is identical either way: nothing
+          is tracked.
+        </p>
+
+        <h2>Your choices</h2>
+        <p>
+          Email me at <a href={`mailto:${site.email}`}>{site.email}</a> and I will,
+          within a reasonable time and at no cost:
+        </p>
+        <ul>
+          <li>tell you what I hold about you,</li>
+          <li>send you a copy of it,</li>
+          <li>correct anything that is wrong, or</li>
+          <li>delete it entirely.</li>
+        </ul>
+        <p>
+          You do not need to give a reason, and asking will not affect how I deal
+          with you.
+        </p>
+
+        <h2>Children</h2>
+        <p>
+          This site is aimed at businesses and is not directed at children under 13.
+          I do not knowingly collect information from them. If you believe a child
+          has sent me something, email me and I will delete it.
+        </p>
+
+        <h2>Changes</h2>
+        <p>
+          If what this site does ever changes, this page changes with it, and the
+          date below changes too. There is no version of this where the page says one
+          thing and the site does another.
+        </p>
+
+        <h2>Getting in touch</h2>
+        <p>
+          Weblio is run by Ravi, based in New Jersey, USA. For anything on this page,
+          email <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+
+        <p class="legal__updated label">Last updated {updated}</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal {
+    position: relative;
+    z-index: var(--z-content);
+    min-height: 100svh;
+    background: var(--paper);
+    padding-block: calc(var(--nav-h, 4.5rem) + var(--sp-8)) var(--sp-section);
+  }
+
+  .legal__folio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-4);
+  }
+
+  .legal__lead {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--sp-6);
+    align-items: end;
+    padding-block: var(--sp-8) var(--sp-7);
+  }
+
+  .legal__heading {
+    grid-column: 1 / span 7;
+    font-size: var(--display-md);
+    font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 0, 'WONK' 0;
+  }
+  .legal__heading span { display: block; }
+  .legal__heading span:last-child { color: var(--accent); }
+
+  .legal__lede { grid-column: 9 / -1; }
+
+  .legal__body {
+    grid-column: 1 / span 7;
+    max-width: 62ch;
+    padding-top: var(--sp-6);
+    border-top: 1px solid var(--rule);
+  }
+
+  .legal__body h2 {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-variation-settings: 'wght' 500;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-60);
+    margin-top: var(--sp-8);
+    padding-bottom: var(--sp-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  .legal__body h2:first-child { margin-top: 0; }
+
+  .legal__body p { margin-top: var(--sp-4); }
+
+  .legal__body ul {
+    margin-top: var(--sp-4);
+    padding-left: 0;
+    list-style: none;
+  }
+  .legal__body li {
+    position: relative;
+    padding-left: 1.6ch;
+    margin-top: var(--sp-2);
+  }
+  /* A folio dash rather than a bullet. */
+  .legal__body li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .legal__body a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+    text-decoration-color: var(--ink-30);
+  }
+  .legal__body a:hover { text-decoration-color: var(--accent); }
+
+  .legal__updated {
+    margin-top: var(--sp-8);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--rule);
+    color: var(--ink-60);
+  }
+
+  @media (max-width: 56rem) {
+    .legal__heading { grid-column: 1 / span 9; }
+    .legal__lede { grid-column: 1 / span 9; margin-top: var(--sp-5); }
+    .legal__body { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 48rem) {
+    .legal__lead { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    .legal__heading,
+    .legal__lede,
+    .legal__body { grid-column: 1 / -1; }
+  }
+</style>

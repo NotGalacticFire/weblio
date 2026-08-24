@@ -71,7 +71,11 @@ export const difference = {
     name: 'Halliday & Sons',
     trade: 'Roofing & guttering',
     town: 'Est. 1994 · Yorkshire',
-    phone: '01423 555 0180',
+    /* Ofcom's reserved drama range (01632 960000-960999). The previous number
+       used 01423 — the real Harrogate code — and "555" is a US fiction
+       convention with no UK equivalent, so it could have routed to a real
+       person's line. */
+    phone: '01632 960180',
   },
 
   before: {
@@ -180,7 +184,7 @@ export const proof = {
   label: 'Evidence',
   heading: ['No client logos.', 'This page is the portfolio.'],
   body:
-    'Weblio is new, so there is no wall of logos to show you and I am not going to invent one. What I can show you is the thing you are looking at: the optics in the header, the type responding under the glass, and a page that still loads in under a second while doing it.',
+    'Weblio is new, so there is no wall of logos to show you and I am not going to invent one. What I can show you is the thing you are looking at: the optics in the header, the type responding under the glass, and under 10 KB of JavaScript doing all of it.',
   points: [
     { k: 'Fonts', v: 'Three variable faces, subset to 110 KB with every axis intact' },
     { k: 'Header', v: 'Procedural WebGL — no textures, no models, one triangle' },

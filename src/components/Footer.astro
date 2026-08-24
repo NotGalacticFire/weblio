@@ -21,6 +21,9 @@ const year = new Date().getFullYear();
       <ul role="list">
         {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
         <li><a href="/contact">Contact</a></li>
+        {/* CalOPPA requires the privacy policy be "conspicuously posted". A
+            footer link present on every page is the accepted way to do that. */}
+        <li><a href="/privacy">Privacy</a></li>
       </ul>
     </nav>
 
